@@ -1,10 +1,11 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.exception.UpdateException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import javax.validation.Valid;
@@ -13,11 +14,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @RestController
 @RequestMapping(value = "/users")
 @RequiredArgsConstructor
 public class UserController {
-    private static final Logger log = LoggerFactory.getLogger(UserController.class);
     private final Map<Integer, User> users = new HashMap<>();
     private int idGenerator = 1;
 
@@ -34,11 +35,12 @@ public class UserController {
 
     @PutMapping
     public User update(@Valid @RequestBody User user) {
+        nameEqualsLogin(user);
         log.info("Request PUT /users");
         if (users.containsKey(user.getId())) {
             users.put(user.getId(), user);
             log.info("User was updated");
-        } else throw new RuntimeException("User wasn't updated");
+        } else throw new UpdateException("User wasn't updated");
         return user;
     }
 
@@ -53,7 +55,7 @@ public class UserController {
             user.setName(user.getLogin());
         }
         if (user.getLogin().contains(" ")) {
-            throw new RuntimeException("The login must not contain gaps");
+            throw new ValidationException("The login must not contain gaps");
         }
     }
 
