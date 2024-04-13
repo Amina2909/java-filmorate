@@ -19,21 +19,21 @@ class FilmValidationTests {
 
     @Test
     public void testBlankName() {
-        Film film = new Film(null, "", "Description", LocalDate.now(), 120);
+        Film film = new Film(null, "", "Description", LocalDate.now(), 120, null);
         Set<ConstraintViolation<Film>> violations = validator.validate(film);
         assertFalse(violations.isEmpty());
     }
 
     @Test
     public void testBlankDescription() {
-        Film film = new Film(null, "Name", "", LocalDate.now(), 120);
+        Film film = new Film(null, "Name", "", LocalDate.now(), 120, null);
         Set<ConstraintViolation<Film>> violations = validator.validate(film);
         assertFalse(violations.isEmpty());
     }
 
     @Test
     public void testNegativeDuration() {
-        Film film = new Film(null, "Name", "Description", LocalDate.now(), -120);
+        Film film = new Film(null, "Name", "Description", LocalDate.now(), -120, null);
         Set<ConstraintViolation<Film>> violations = validator.validate(film);
         assertFalse(violations.isEmpty());
     }

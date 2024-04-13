@@ -4,56 +4,82 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.UpdateException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.serviceinterface.UserService;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 
 @Slf4j
 @RestController
 @RequestMapping(value = "/users")
 @RequiredArgsConstructor
 public class UserController {
-    private final Map<Integer, User> users = new HashMap<>();
-    private int idGenerator = 1;
+
+    private final UserService userService;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public User addNew(@Valid @RequestBody User user) {
-        nameEqualsLogin(user);
-        log.info("Request POST /users received");
-        user.setId(idGenerator++);
-        users.put(user.getId(), user);
+        log.info("Request POST /users");
+        User addUser = userService.addNew(user);
         log.info("A new user has been added");
-        return user;
+        return addUser;
     }
 
     @PutMapping
     public User update(@Valid @RequestBody User user) {
-        nameEqualsLogin(user);
         log.info("Request PUT /users");
-        if (users.containsKey(user.getId())) {
-            users.put(user.getId(), user);
-            log.info("User was updated");
-        } else throw new UpdateException("User wasn't updated");
-        return user;
+        User updateUser = userService.update(user);
+        log.info("User was updated");
+        return updateUser;
     }
 
     @GetMapping
     public List<User> returnAll() {
         log.info("Request GET /users received");
-        return new ArrayList<>(users.values());
+        return userService.returnAll();
     }
 
-    public void nameEqualsLogin(User user) {
-        if ((user.getName() == null) || (user.getName().isBlank())) {
-            user.setName(user.getLogin());
-        }
+    @GetMapping("/{id}")
+    public User getById(@PathVariable Integer id) {
+        log.info("Request GET /users/{id} received");
+        return userService.getById(id);
+    }
+
+    @GetMapping("/{id}/friends")
+    public List<User> getAllFriends(@PathVariable Integer id) {
+        log.info("Request GET /users/{id}/friends received");
+        return  userService.getAllFriends(id);
+    }
+
+    @GetMapping("/{id}/friends/common/{otherId}")
+    public List<Optional<User>> getCommonFriends(@PathVariable Integer id, @PathVariable Integer otherId) {
+        log.info("Request GET /users/{id}/friends/common/{otherId}");
+        return userService.getCommonFriends(id, otherId);
+    }
+
+    @PutMapping("/{id}/friends/{friendId}")
+    public User addFriend(@PathVariable Integer id, @PathVariable Integer friendId) {
+        log.info("Friend was added");
+        return userService.addFriend(id, friendId);
+    }
+
+    @DeleteMapping("/{id}")
+    public User deleteById(@PathVariable Integer id) {
+        User removeUser = userService.remove(id);
+        log.info("User was deleted");
+        return removeUser;
+    }
+
+    @DeleteMapping("/{id}/friends/{friendId}")
+    public User removeFriend(@PathVariable Integer id, @PathVariable Integer friendId) {
+        User user = userService.removeFriend(id, friendId);
+        log.info("Friend was deleted");
+        return user;
     }
 
 }
+
 
