@@ -56,27 +56,30 @@ public class UserController {
 
     @GetMapping("/{id}/friends/common/{otherId}")
     public List<Optional<User>> getCommonFriends(@PathVariable Integer id, @PathVariable Integer otherId) {
-        log.info("Request GET /users/{id}/friends/common/{otherId}");
+        log.info("Request GET /users/{id}/friends/common/{otherId} with parameters id: {} and otherId: {}", id, otherId);
         return userService.getCommonFriends(id, otherId);
     }
 
     @PutMapping("/{id}/friends/{friendId}")
     public User addFriend(@PathVariable Integer id, @PathVariable Integer friendId) {
+        log.info("Request PUT /users/{id}/friends/{friendId} with parameters id: {} and friendId: {}", id, friendId);
         log.info("Friend was added");
         return userService.addFriend(id, friendId);
     }
 
     @DeleteMapping("/{id}")
     public User deleteById(@PathVariable Integer id) {
+        log.info("Request DELETE /users/{id} with parameter id: {}", id);
         User removeUser = userService.remove(id);
-        log.info("User was deleted");
+        log.info("User with id: {} was deleted", id);
         return removeUser;
     }
 
     @DeleteMapping("/{id}/friends/{friendId}")
     public User removeFriend(@PathVariable Integer id, @PathVariable Integer friendId) {
+        log.info("Request DELETE /users/{id}/friends/{friendId} with parameters id: {} and friendId: {}", id, friendId);
         User user = userService.removeFriend(id, friendId);
-        log.info("Friend was deleted");
+        log.info("Friend with id: {} was deleted from user with id: {}", friendId, id);
         return user;
     }
 

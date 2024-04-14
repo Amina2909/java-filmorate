@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.exception;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -13,55 +12,24 @@ import javax.validation.ConstraintViolationException;
 @Slf4j
 @RestControllerAdvice
 public class ErrorHandler {
-    @ExceptionHandler
+    @ExceptionHandler({MethodArgumentNotValidException.class, ValidationException.class, ConstraintViolationException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleMethodArgumentNotValidException(final MethodArgumentNotValidException exception) {
-        log.error("Method Argument Not Valid Exception");
-        return new ErrorResponse(
-                exception.getMessage()
-        );
+    public ErrorResponse handleBadRequestExceptions(final RuntimeException exception) {
+        log.error("Bad Request Exception: {}", exception.getMessage(), exception);
+        return new ErrorResponse(exception.getMessage());
     }
 
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<String> handleNoValidPositiveArgumentPopularFilms(ConstraintViolationException ex) {
-        log.error("No Valid Positive Argument Popular Films");
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleInvalidEmailException(final ValidationException exception) {
-        log.error("Validation error");
-        return new ErrorResponse(
-                exception.getMessage()
-        );
-    }
-
-    @ExceptionHandler
+    @ExceptionHandler({FilmNotFoundException.class, UserNotFoundException.class})
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse handleUserNotFoundException(final UserNotFoundException exception) {
-        log.error("User unknown");
-        return new ErrorResponse(
-                exception.getMessage()
-        );
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse handleFilmNotFoundException(final FilmNotFoundException exception) {
-        log.error("Film unknown");
-        return new ErrorResponse(
-                exception.getMessage()
-        );
+    public ErrorResponse handleEntityNotFoundException(final RuntimeException exception) {
+        log.error("Entity not found: {}", exception.getMessage(), exception);
+        return new ErrorResponse(exception.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleServerError(final Throwable exception) {
-        log.error("Server error");
-        return new ErrorResponse(
-                exception.getMessage()
-        );
+        log.error("Server error: {}", exception.getMessage(), exception);
+        return new ErrorResponse(exception.getMessage());
     }
 }

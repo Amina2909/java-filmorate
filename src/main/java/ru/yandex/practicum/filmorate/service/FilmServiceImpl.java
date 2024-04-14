@@ -24,11 +24,8 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public Film update(Film film) {
-        if (filmStorage.getById(film.getId()).isPresent()) {
-            return filmStorage.update(film);
-        } else {
-            throw new FilmNotFoundException("The film was not found");
-        }
+        getById(film.getId());
+        return filmStorage.update(film);
     }
 
     @Override
@@ -38,40 +35,33 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public Optional<Film> getById(Integer id) {
-        return filmStorage.getById(id);
+        return Optional.ofNullable(filmStorage.getById(id).orElseThrow(() ->
+                new FilmNotFoundException("The film or user was not found")));
     }
 
     @Override
     public Film remove(Integer id) {
-        if (filmStorage.getById(id).isPresent()) {
-            return filmStorage.remove(id);
-        } else {
-            throw new FilmNotFoundException("The film was not found");
+        getById(id);
+        return filmStorage.remove(id);
         }
-    }
 
     @Override
     public Film addLike(Integer filmId, Integer userId) {
-        if (filmStorage.getById(filmId).isPresent() && userStorage.getById(userId).isPresent()) {
+       getById(filmId);
+       userStorage.getById(userId);
             Film film = filmStorage.getById(filmId).get();
             film.getLikes().add(userId);
             return filmStorage.update(film);
-        } else {
-            throw new FilmNotFoundException("Film or User was not found");
         }
-    }
 
     @Override
     public Film removeLike(Integer filmId, Integer userId) {
-        if (filmStorage.getById(filmId).isPresent() && userStorage.getById(userId).isPresent()) {
-            Film film = filmStorage.getById(filmId).get();
-
+       getById(filmId);
+       userStorage.getById(userId);
+       Film film = filmStorage.getById(filmId).get();
             film.getLikes().remove(userId);
             return filmStorage.update(film);
-        } else {
-            throw new FilmNotFoundException("Film or User was not found");
         }
-    }
 
     @Override
     public List<Film> getPopular(Integer count) {
