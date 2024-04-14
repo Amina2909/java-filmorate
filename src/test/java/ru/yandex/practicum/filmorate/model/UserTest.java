@@ -3,6 +3,8 @@ package ru.yandex.practicum.filmorate.model;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.controller.UserController;
+import ru.yandex.practicum.filmorate.service.UserServiceImpl;
+import ru.yandex.practicum.filmorate.storage.memory.InMemoryUserStorage;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -13,8 +15,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 class UserTest {
-
-    private final UserController controller = new UserController();
+    private final InMemoryUserStorage cont = new InMemoryUserStorage();
+    private  final UserServiceImpl cont2 = new UserServiceImpl(cont);
+    private final UserController controller = new UserController(cont2);
     private User user;
 
     @BeforeEach
